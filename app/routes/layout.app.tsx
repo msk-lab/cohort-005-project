@@ -2,6 +2,7 @@ import { Outlet } from "react-router";
 import type { Route } from "./+types/layout.app";
 import { Sidebar } from "~/components/sidebar";
 import { DevUI } from "~/components/dev-ui";
+import { useNotificationInboxPrototype } from "~/components/notification-inbox.prototype";
 import { Toaster } from "sonner";
 import { getCurrentUserId, getDevCountry } from "~/lib/session";
 import { getCountryTierInfo, COUNTRIES } from "~/lib/ppp";
@@ -227,16 +228,26 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
     isTeamAdmin: userIsTeamAdmin,
   } = loaderData;
 
+  // PROTOTYPE — notification inbox variants (?variant=A|B|C)
+  const inboxPrototype = useNotificationInboxPrototype(
+    currentUser?.role ?? null,
+    userIsTeamAdmin
+  );
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar
         currentUser={currentUser}
         recentCourses={recentCourses}
         isTeamAdmin={userIsTeamAdmin}
+        headerSlot={inboxPrototype.sidebarHeader}
+        navSlot={inboxPrototype.sidebarNav}
       />
       <main className="flex-1 overflow-y-auto">
-        <Outlet />
+        {inboxPrototype.mainTopBar}
+        {inboxPrototype.mainOverride ?? <Outlet />}
       </main>
+      {inboxPrototype.overlay}
       <DevUI
         users={users}
         currentUser={currentUser}
